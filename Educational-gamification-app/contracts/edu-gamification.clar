@@ -17,3 +17,50 @@
 (define-data-var total-users uint u0)
 (define-data-var achievement-counter uint u0)
 (define-data-var leaderboard-size uint u10)
+
+;; Data maps
+(define-map challenges
+    { challenge-id: uint }
+    {
+        subject: (string-ascii 50),
+        difficulty: uint,
+        points: uint,
+        active: bool,
+        completions: uint
+    }
+)
+
+(define-map user-progress
+    { user: principal, challenge-id: uint }
+    { completed: bool, score: uint, timestamp: uint }
+)
+
+(define-map user-stats
+    { user: principal }
+    { total-points: uint, challenges-completed: uint, level: uint }
+)
+
+(define-map achievements
+    { achievement-id: uint }
+    {
+        name: (string-ascii 50),
+        description: (string-ascii 100),
+        points-required: uint,
+        badge-type: (string-ascii 20)
+    }
+)
+
+(define-map user-achievements
+    { user: principal, achievement-id: uint }
+    { unlocked: bool, unlock-timestamp: uint }
+)
+
+(define-map daily-streaks
+    { user: principal }
+    { current-streak: uint, longest-streak: uint, last-activity: uint }
+)
+
+(define-map subject-mastery
+    { user: principal, subject: (string-ascii 50) }
+    { completed-challenges: uint, total-score: uint, mastery-level: uint }
+)
