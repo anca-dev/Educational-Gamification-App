@@ -335,3 +335,65 @@
         )
     )
 )
+
+;; Read-only functions
+(define-read-only (get-challenge (challenge-id uint))
+    (map-get? challenges { challenge-id: challenge-id })
+)
+
+(define-read-only (get-user-progress (user principal) (challenge-id uint))
+    (map-get? user-progress { user: user, challenge-id: challenge-id })
+)
+
+(define-read-only (get-user-stats (user principal))
+    (map-get? user-stats { user: user })
+)
+
+(define-read-only (get-challenge-count)
+    (ok (var-get challenge-counter))
+)
+
+(define-read-only (get-achievement (achievement-id uint))
+    (map-get? achievements { achievement-id: achievement-id })
+)
+
+(define-read-only (get-user-achievement (user principal) (achievement-id uint))
+    (map-get? user-achievements { user: user, achievement-id: achievement-id })
+)
+
+(define-read-only (get-achievement-count)
+    (ok (var-get achievement-counter))
+)
+
+(define-read-only (get-user-streak (user principal))
+    (map-get? daily-streaks { user: user })
+)
+
+(define-read-only (get-subject-mastery (user principal) (subject (string-ascii 50)))
+    (map-get? subject-mastery { user: user, subject: subject })
+)
+
+(define-read-only (is-challenge-active (challenge-id uint))
+    (match (map-get? challenges { challenge-id: challenge-id })
+        challenge (ok (get active challenge))
+        err-not-found
+    )
+)
+
+(define-read-only (get-user-level (user principal))
+    (match (map-get? user-stats { user: user })
+        stats (ok (get level stats))
+        (ok u1)
+    )
+)
+
+(define-read-only (get-total-users)
+    (ok (var-get total-users))
+)
+
+(define-read-only (calculate-score-percentage (score uint) (max-score uint))
+    (if (> max-score u0)
+        (ok (/ (* score u100) max-score))
+        (ok u0)
+    )
+)
