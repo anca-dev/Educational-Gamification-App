@@ -163,3 +163,49 @@
         (ok true)
     )
 )
+
+;; Create achievement
+;;[#allow(unchecked_data)]
+(define-public (create-achievement (name (string-ascii 50)) (description (string-ascii 100)) (points-required uint) (badge-type (string-ascii 20)))
+    (let
+        (
+            (new-id (+ (var-get achievement-counter) u1))
+        )
+        (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+        (map-set achievements
+            { achievement-id: new-id }
+            {
+                ;; #[allow(unchecked_data)]
+                name: name,
+                ;; #[allow(unchecked_data)]
+                description: description,
+                ;; #[allow(unchecked_data)]
+                points-required: points-required,
+                ;; #[allow(unchecked_data)]
+                badge-type: badge-type
+            }
+        )
+        (var-set achievement-counter new-id)
+        (ok new-id)
+    )
+)
+
+;; Unlock achievement
+;;[#allow(unchecked_data)]
+(define-public (unlock-achievement (achievement-id uint))
+    (let
+        (
+            (achievement (unwrap! (map-get? achievements { achievement-id: achievement-id }) err-not-found))
+            (user-stat (unwrap! (map-get? user-stats { user: tx-sender }) err-not-found))
+            (existing-unlock (map-get? user-achievements { user: tx-sender, achievement-id: achievement-id }))
+        )
+        (asserts! (is-none existing-unlock) err-already-exists)
+        (asserts! (>= (get total-points user-stat) (get points-required achievement)) err-invalid-score)
+        (map-set user-achievements
+            ;; #[allow(unchecked_data)]
+            { user: tx-sender, achievement-id: achievement-id }
+            { unlocked: true, unlock-timestamp: stacks-block-height }
+        )
+        (ok true)
+    )
+)
